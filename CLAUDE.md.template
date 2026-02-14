@@ -1,0 +1,69 @@
+# 專案規則
+
+## CStr 字串集中化工具
+
+專案內建 Python 工具位於 `.claude/tools/`，用於 C→C# 移植時的字串管理。
+詳細說明見 `.claude/tools/README.md`。
+
+### 工具清單
+| 工具 | 功能 |
+|------|------|
+| `big5_extract.py` | 從原始 C 原始碼（Big5/CP950）提取中文字串 |
+| `cstr_add_missing.py` | 掃描 C# 原始檔，自動新增缺少的 CStr 常數 |
+| `cstr_replacer.py` | 替換硬編碼中文字串為 `CStr.XXX` 引用 |
+
+### 新移植檔案的標準流程
+```
+1. big5_extract.py  SOURCE.C --verify       # 提取原始字串
+2. cstr_add_missing.py                      # 新增缺少常數
+3. cstr_replacer.py --apply SOURCE.C.cs     # 替換硬編碼字串
+4. dotnet build {CSPROJ_PATH}               # 編譯驗證
+```
+
+### 新增檔案支援
+移植新 C 檔案時，需在 `cstr_replacer.py` 和 `cstr_add_missing.py` 的 `FILE_TO_PREFIX` 中新增映射，
+並在 `CStr.cs` 建立對應的 `#region NEWREGION` / `#endregion` 區段。
+
+### 編碼注意事項
+- 原始 C 原始碼為 Big5 編碼，必須用 `cp950`（非 `big5`）解碼
+- `\xF9xx` 範圍字元（如「裏」）只有 cp950 能正確處理
+- 所有 Python 工具需加 `-X utf8` 旗標執行
+
+## AI 知識庫自動化指令 (.ai-kb/)
+
+> **以下是強制性指令，非選用建議。AI 必須嚴格遵守。**
+
+### 觸發條件與強制行為
+
+當收到包含以下關鍵詞的任務時，AI **必須**：
+1. 先 Read `.ai-kb/INDEX.md`
+2. 依據 INDEX.md 中的任務路由表，Read 對應的 workflow 文件
+3. 嚴格按照 workflow 狀態機的步驟執行，不得跳過任何狀態
+
+| 關鍵詞 | 必須讀取的 workflow |
+|--------|-------------------|
+| 移植 / port / 轉換 | `.ai-kb/workflows/port-new-file.md` |
+| 驗證 / verify / 審查 | `.ai-kb/workflows/verify-existing.md` |
+| 亂碼 / FFFD / corruption | `.ai-kb/workflows/fix-corruption.md` |
+| CStr / 字串 / 集中化 | `.ai-kb/workflows/port-new-file.md`（從 CSTR 狀態開始） |
+
+### 禁止事項
+
+1. **禁止憑記憶移植**: 不得跳過 workflow，不得「根據經驗」直接寫 C# 程式碼
+2. **禁止未讀就寫**: 產出任何 C# 程式碼前，必須已 Read 過對應的 C 原始碼（零例外）
+3. **禁止逐個 build LOW 風險函數**: LOW 風險函數必須批次 5-10 個後一次 build
+4. **禁止無限重試**: error-recovery 最多 3 輪，超過則寫入 `workspace/staging/` 並停止
+
+### 每個函數移植前的必要步驟
+
+```
+1. Read C 原始碼對應段落（前置條件，零例外）
+2. 根據 algorithms/function-classifier.md 標記函數特徵
+3. 根據 algorithms/hallucination-guard.md 判定風險等級 (LOW/MEDIUM/HIGH/CRITICAL)
+4. 根據風險等級決定驗證深度（不得過度驗證，也不得跳過）
+5. 載入 function-classifier 指示的原子知識（按需讀取，不一次全讀）
+```
+
+### 入口文件
+
+`.ai-kb/INDEX.md` — **所有移植/驗證/修復任務從這裡開始**

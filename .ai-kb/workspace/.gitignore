@@ -1,0 +1,6 @@
+*
+!.gitignore
+!session/.gitkeep
+!staging/.gitkeep
+!reports/.gitkeep
+!benchmarks/.gitkeep

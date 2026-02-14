@@ -1,0 +1,10 @@
+# Workspace temp files (generated at runtime)
+.ai-kb/workspace/session/*
+.ai-kb/workspace/staging/*
+.ai-kb/workspace/reports/*
+.ai-kb/workspace/benchmarks/*
+!.ai-kb/workspace/**/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
