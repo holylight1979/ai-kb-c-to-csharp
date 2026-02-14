@@ -12,7 +12,36 @@ AI 自主執行 C→C# MUD 伺服器移植的知識引擎模板。
 - 自動集中化中文字串（Big5→UTF-8→CStr 常數）
 - 自動建立、測試、進化 Skill
 
-## 快速開始
+## 使用方式（TL;DR）
+
+```bash
+# 1. 下載
+git clone https://github.com/holylight1979/ai-kb-c-to-csharp.git
+
+# 2. 複製到你的專案
+cp -r ai-kb-c-to-csharp/.ai-kb   你的專案/
+cp -r ai-kb-c-to-csharp/tools/   你的專案/.claude/tools/
+
+# 3. 搜尋替換 3 個佔位符
+#    {CSHARP_DIR}    → 你的 C# 專案目錄名（如 MyCSharpProject）
+#    {PROJECT_ROOT}  → 你的專案根目錄絕對路徑
+#    {CSPROJ_PATH}   → 你的 .csproj 相對路徑
+
+# 4. 自訂兩個檔案
+#    .ai-kb/reference/file-prefix-map.md  → 你的 C↔C# 檔案映射
+#    .ai-kb/reference/module-deps.md      → 你的模組依賴圖
+
+# 5. 改 Python 工具中標有 TODO 的 FILE_TO_PREFIX 和路徑
+
+# 6. 把 CLAUDE.md.template 貼到你的專案 CLAUDE.md（最重要！）
+#    沒有這步，AI 不會自動使用知識庫
+```
+
+完成後，對 AI 說「移植 XXX.C」即可全自動運作。
+
+---
+
+## 詳細設定指南
 
 ### 1. 複製到你的專案
 
